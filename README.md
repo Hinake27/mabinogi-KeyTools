@@ -5,3 +5,4 @@
 3.好不好用見仁見智
 
 4.愛服玩家: Sorina 製作
+https://hinake27.github.io/mabinogi-KeyTools/
