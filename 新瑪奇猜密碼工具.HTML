@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數字小遊戲</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #fce7f3;
+            color: #831843;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+        
+        .validator {
+            background-color: white;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(219, 39, 119, 0.15);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: #fbcfe8;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            border: 2px solid #f9a8d4;
+            height: 64px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 12px;
+            padding: 8px;
+            border-radius: 12px;
+            height: 48px;
+            align-items: center;
+        }
+        
+        .control-group {
+            width: 70px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background-color: #fff;
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 2px solid #fbcfe8;
+            transform-origin: center;
+            transition: all 0.2s ease;
+        }
+        
+        .control-group:hover {
+            transform: scale(1.02);
+            border-color: #f472b6;
+        }
+        
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            font-size: 18px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+        }
+        
+        .icon.correct { color: #059669; }
+        .icon.present { color: #d97706; }
+        .icon.wrong { color: #dc2626; }
+        
+        input[type="number"] {
+            width: 36px;
+            height: 28px;
+            background-color: white;
+            border: 2px solid #fbcfe8;
+            border-radius: 8px;
+            color: #831843;
+            padding: 4px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            -moz-appearance: textfield;
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .number-input-container {
+            width: 100%;
+            height: 80px;
+            margin: 16px 0;
+            position: relative;
+        }
+        
+        .number-input {
+            width: 100%;
+            height: 60px;
+            background-color: white;
+            border: 3px solid #fbcfe8;
+            border-radius: 16px;
+            color: #831843;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            padding: 0 12px;
+            line-height: 60px;
+        }
+        
+        .number-input:focus {
+            outline: none;
+            border-color: #f472b6;
+            box-shadow: 0 0 0 4px #fce7f3;
+        }
+        
+        .results {
+            margin-top: 20px;
+            background-color: #fdf2f8;
+            border-radius: 16px;
+            padding: 16px;
+            display: none;
+            border: 2px solid #fbcfe8;
+        }
+        
+        .results-title {
+            font-size: 16px;
+            color: #be185d;
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+        
+        .combinations {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 8px;
+        }
+        
+        .combination {
+            height: 50px;
+            background-color: white;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 20px;
+            border: 2px solid #fbcfe8;
+            color: #831843;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            transform: translateZ(0);
+        }
+        
+        .combination:hover {
+            transform: scale(1.02);
+            border-color: #f472b6;
+        }
+        
+        .invalid {
+            color: #dc2626;
+            background-color: #fee2e2;
+            border-color: #fca5a5;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            color: #be185d;
+            margin: 20px 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(219, 39, 119, 0.2);
+            height: 36px;
+            line-height: 36px;
+        }
+
+        .help-text {
+            text-align: center;
+            font-size: 14px;
+            color: #9d174d;
+            margin-top: 8px;
+            height: 20px;
+            line-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">✨ 數字小遊戲 ✨</div>
+        <div class="validator">
+            <div class="header">
+                <div class="controls">
+                    <div class="control-group">
+                        <div class="icon correct">⭕</div>
+                        <input type="number" id="correct" min="0" max="3" value="0" onchange="validateInput(this)">
+                    </div>
+                    <div class="control-group">
+                        <div class="icon present">△</div>
+                        <input type="number" id="present" min="0" max="3" value="0" onchange="validateInput(this)">
+                    </div>
+                    <div class="control-group">
+                        <div class="icon wrong">×</div>
+                        <input type="number" id="wrong" min="0" max="3" value="0" onchange="validateInput(this)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="number-input-container">
+                <input type="text" 
+                       class="number-input" 
+                       id="numberInput" 
+                       maxlength="3" 
+                       placeholder="💭💭💭"
+                       oninput="validateAndCheck(this.value)">
+            </div>
+
+            <div class="help-text">請輸入3位不重複的數字喔！</div>
+
+            <div id="results" class="results">
+                <div class="results-title">
+                    <span>✨ 可能的組合</span>
+                    <span id="totalCount"></span>
+                </div>
+                <div id="combinations" class="combinations"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function validateAndCheck(input) {
+            input = input.replace(/[^0-9]/g, '');
+            document.getElementById('numberInput').value = input;
+            
+            if (input.length === 3) {
+                analyzePossibleCombinations();
+            }
+        }
+
+        function validateInput(element) {
+            let value = parseInt(element.value) || 0;
+            if (value < 0) value = 0;
+            if (value > 3) value = 3;
+            element.value = value;
+            
+            if (document.getElementById('numberInput').value.length === 3) {
+                analyzePossibleCombinations();
+            }
+        }
+
+        function analyzePossibleCombinations() {
+            const input = document.getElementById('numberInput').value;
+            const correct = parseInt(document.getElementById('correct').value) || 0;
+            const present = parseInt(document.getElementById('present').value) || 0;
+            const wrong = parseInt(document.getElementById('wrong').value) || 0;
+
+            if (input.length !== 3 || new Set(input).size !== 3) return;
+            if (correct + present + wrong !== 3) return;
+
+            const combinations = [];
+
+            for (let i = 123; i <= 987; i++) {
+                const numStr = i.toString();
+                if (numStr.includes('0') || new Set(numStr).size !== 3) continue;
+                
+                const result = checkNumber(input, numStr);
+                if (result.correct === correct && 
+                    result.present === present && 
+                    result.wrong === wrong) {
+                    combinations.push(numStr);
+                }
+                
+                if (combinations.length === 10) break;
+            }
+
+            displayResults(combinations);
+        }
+
+        function checkNumber(input, target) {
+            let correct = 0;
+            let present = 0;
+            const usedIndices = new Set();
+            
+            for (let i = 0; i < input.length; i++) {
+                if (input[i] === target[i]) {
+                    correct++;
+                    usedIndices.add(i);
+                }
+            }
+            
+            for (let i = 0; i < input.length; i++) {
+                if (!usedIndices.has(i)) {
+                    const foundIndex = target.indexOf(input[i]);
+                    if (foundIndex !== -1 && !usedIndices.has(foundIndex)) {
+                        present++;
+                        usedIndices.add(foundIndex);
+                    }
+                }
+            }
+            
+            return {
+                correct,
+                present,
+                wrong: 3 - correct - present
+            };
+        }
+
+        function displayResults(combinations) {
+            const resultsDiv = document.getElementById('results');
+            const combinationsDiv = document.getElementById('combinations');
+            const totalCountDiv = document.getElementById('totalCount');
+            
+            resultsDiv.style.display = 'block';
+            combinationsDiv.innerHTML = '';
+
+            if (combinations.length === 0) {
+                combinationsDiv.innerHTML = '<div class="combination invalid">沒有符合條件的組合</div>';
+                totalCountDiv.textContent = '無結果';
+                return;
+            }
+
+            combinations.forEach(combo => {
+                const div = document.createElement('div');
+                div.className = 'combination';
+                div.textContent = combo;
+                combinationsDiv.appendChild(div);
+            });
+
+            totalCountDiv.textContent = `顯示前 10 組`;
+        }
+    </script>
+</body>
+</html>
