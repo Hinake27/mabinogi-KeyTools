@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>新瑪奇-打開模糊不清的箱子</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a1a;
+            font-family: "Microsoft JhengHei", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .game-window {
+            width: 400px;
+            background-color: rgba(14, 42, 63, 0.95);
+            border: 1px solid #436279;
+            border-radius: 3px;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .window-header {
+            background-color: #1c4565;
+            padding: 5px 10px;
+            border: 1px solid #436279;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .window-header span {
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 3px #4a9eff, 
+                         0 0 5px #4a9eff,
+                         0 1px 1px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            padding: 10px;
+            background-color: rgba(20, 55, 82, 0.8);
+            border: 1px solid #436279;
+            border-radius: 3px;
+        }
+
+        .grid-item {
+            background-color: rgba(67, 98, 121, 0.3);
+            border: 1px solid #436279;
+            padding: 10px;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .grid-item.active {
+            background-color: rgba(67, 98, 121, 0.6);
+            border-color: #6a8ca8;
+            box-shadow: inset 0 0 10px rgba(106, 140, 168, 0.3);
+        }
+
+        .item-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #8aabcb;
+            margin-bottom: 5px;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+        }
+
+        .item-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 0 4px #4a9eff,
+                         0 0 6px #4a9eff,
+                         0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        input {
+            width: 80px;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid #436279;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            text-shadow: 0 0 4px #4a9eff;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #6a8ca8;
+            background-color: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 5px #4a9eff;
+        }
+
+        button {
+            background: linear-gradient(to bottom, #1c4565, #0e2a3f);
+            border: 1px solid #436279;
+            color: #fff;
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-family: "Microsoft JhengHei", sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        button:hover {
+            background: linear-gradient(to bottom, #2a5a80, #1c4565);
+            border-color: #6a8ca8;
+            text-shadow: 0 0 4px #4a9eff;
+        }
+
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 0 2px rgba(0,0,0,0.3);
+        }
+
+        .hint {
+            color: #8aabcb;
+            font-size: 14px;
+            text-align: center;
+            margin: 10px 0;
+            font-weight: 700;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* 添加光暈動畫效果 */
+        @keyframes glow {
+            0% { text-shadow: 0 0 4px #4a9eff, 0 0 6px #4a9eff; }
+            50% { text-shadow: 0 0 8px #4a9eff, 0 0 12px #4a9eff; }
+            100% { text-shadow: 0 0 4px #4a9eff, 0 0 6px #4a9eff; }
+        }
+
+        .item-value {
+            animation: glow 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-window">
+        <div class="window-header">
+            <span>新瑪奇-打開模糊不清的箱子</span>
+        </div>
+        <div class="grid-container">
+            <div class="grid-item active">
+                <div class="item-label">建議數字</div>
+                <div class="item-value" id="suggestion">147</div>
+            </div>
+            <div class="grid-item">
+                <div class="item-label">輸入結果</div>
+                <input type="text" id="result" maxlength="3" onkeypress="handleKeyPress(event)">
+            </div>
+            <div class="grid-item">
+                <div class="item-label">可能性</div>
+                <div class="item-value" id="possibilities"></div>
+            </div>
+        </div>
+        <div class="hint">請輸入遊戲中⭕⚠❌數字</div>
+        <div class="button-container">
+            <button onclick="resetGame()">重新開始</button>
+            <button onclick="processResult()">確認</button>
+        </div>
+    </div>
+
+    <script>
+        let hints = [];
+        let suggestedGuess = 147;
+
+        function validateHints(number, hints) {
+            let numberStr = String(number).padStart(3, '0');
+            if (numberStr.includes('0') || new Set(numberStr).size !== 3) return false;
+            
+            for (let hint of hints) {
+                let guess = String(hint.guess);
+                let a = 0, b = 0, c = 0;
+                for (let i = 0; i < 3; i++) {
+                    if (guess[i] === numberStr[i]) a++;
+                    else if (numberStr.includes(guess[i])) b++;
+                    else c++;
+                }
+                if (`${a}${b}${c}` !== hint.result) return false;
+            }
+            return true;
+        }
+
+        function findPossibleNumbers(hints) {
+            let possible = [];
+            for (let num = 111; num < 1000; num++) {
+                if (validateHints(num, hints)) possible.push(num);
+            }
+            return possible;
+        }
+
+        function processResult() {
+            let result = document.getElementById('result').value;
+            if (!result) return;
+            
+            hints.push({guess: suggestedGuess, result: result});
+            let possibleNumbers = findPossibleNumbers(hints);
+            
+            if (possibleNumbers.length > 0) {
+                suggestedGuess = possibleNumbers[0];
+                document.getElementById('suggestion').innerText = suggestedGuess;
+                document.getElementById('possibilities').innerText = possibleNumbers.length;
+            } else {
+                document.getElementById('possibilities').innerText = '無';
+            }
+            
+            document.getElementById('result').value = '';
+        }
+
+        function resetGame() {
+            hints = [];
+            suggestedGuess = 147;
+            document.getElementById('suggestion').innerText = suggestedGuess;
+            document.getElementById('possibilities').innerText = '';
+            document.getElementById('result').value = '';
+        }
+
+        function handleKeyPress(event) {
+            if (event.keyCode === 13) {
+                processResult();
+            }
+        }
+    </script>
+</body>
+</html>
